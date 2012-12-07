@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="2.0" toolsVersion="2844" systemVersion="12C60" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" initialViewController="gc0-i5-736">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="1930"/>
+    </dependencies>
+    <scenes>
+        <!--Navigation Controller-->
+        <scene sceneID="DZy-ux-kgu">
+            <objects>
+                <navigationController definesPresentationContext="YES" id="gc0-i5-736" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="giF-I0-AW2">
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="h96-d3-pbB" kind="relationship" relationship="rootViewController" id="2ts-7Y-H4y"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="bW3-Ut-oBb" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1430" y="-882"/>
+        </scene>
+        <!--Transport View Controller - Not So Fast!-->
+        <scene sceneID="zdr-Wc-556">
+            <objects>
+                <viewController id="h96-d3-pbB" customClass="TransportViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="CjE-nM-nfn">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" id="siy-Co-cLC" userLabel="Position Slider">
+                                <rect key="frame" x="25" y="236" width="277" height="23"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="movedPositionSlider:" destination="h96-d3-pbB" eventType="valueChanged" id="iVe-ew-Adf"/>
+                                </connections>
+                            </slider>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" id="V9f-u2-G8U" userLabel="Rate Slider">
+                                <rect key="frame" x="27" y="127" width="267" height="23"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="movedRateSlider:" destination="h96-d3-pbB" eventType="valueChanged" id="x0u-q5-g28"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00.0" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="uaT-08-FX6">
+                                <rect key="frame" x="36" y="167" width="145" height="39"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="37"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="DLd-OK-2wQ" userLabel="RW Button">
+                                <rect key="frame" x="100" y="292" width="52" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="RWButton" image="rewind-crop.png">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="endRewind:" destination="h96-d3-pbB" eventType="touchUpInside" id="FxP-lW-O7v"/>
+                                    <action selector="startRewind:" destination="h96-d3-pbB" eventType="touchDown" id="KEi-p6-xYZ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ULc-Ic-rQQ" userLabel="FF Button">
+                                <rect key="frame" x="240" y="292" width="52" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <gestureRecognizers/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="FFButton" image="fforward-crop.png">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="endFForward:" destination="h96-d3-pbB" eventType="touchUpInside" id="A5v-9Z-6Ci"/>
+                                    <action selector="startFForward:" destination="h96-d3-pbB" eventType="touchDown" id="vHu-GV-1xC"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="FMF-j9-VL4" userLabel="toStart Button">
+                                <rect key="frame" x="29" y="292" width="52" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="toStartButton" image="beginning-crop.png">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="toStart:" destination="h96-d3-pbB" eventType="touchUpInside" id="vk9-oo-k0J"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="90v-2f-PoM" userLabel="play Pause Button">
+                                <rect key="frame" x="168" y="292" width="52" height="45"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title="playPauseButton" image="play-crop.png">
+                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="playOrPause:" destination="h96-d3-pbB" eventType="touchUpInside" id="fDT-aM-YyR"/>
+                                </connections>
+                            </button>
+                            <slider opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="0.5" minValue="0.0" maxValue="1" id="RG3-vR-7Du" userLabel="Volume Slider">
+                                <rect key="frame" x="11" y="366" width="299" height="23"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="movedVolumeSlider:" destination="h96-d3-pbB" eventType="valueChanged" id="hSF-NQ-t7o"/>
+                                </connections>
+                            </slider>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Choose a song." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="EZj-Zf-TxA">
+                                <rect key="frame" x="36" y="13" width="249" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="Njb-zt-aJb">
+                                <rect key="frame" x="20" y="45" width="280" height="21"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="PjT-Pz-dZI">
+                                <rect key="frame" x="13" y="218" width="48" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="00:00" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="WtF-z3-8KV">
+                                <rect key="frame" x="264" y="218" width="44" height="22"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Cso-If-6EL" userLabel="50% Button">
+                                <rect key="frame" x="27" y="87" width="35" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
+                                <state key="normal" title="50%" image="50percent-crop-35.png" backgroundImage="blank-30-bright.png">
+                                    <color key="titleColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="fiftyPercent:" destination="h96-d3-pbB" eventType="touchUpInside" id="rdO-oq-lKD"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="xaA-8E-m8G" userLabel="75% Button">
+                                <rect key="frame" x="142" y="87" width="36" height="33"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
+                                <state key="normal" title="75%" image="75percent-crop-35.png">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="seventyFivePercent:" destination="h96-d3-pbB" eventType="touchUpInside" id="9Ft-29-0ed"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="UkC-8V-8nT" userLabel="100% ">
+                                <rect key="frame" x="250" y="87" width="42" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="14"/>
+                                <state key="normal" title="100%" image="100percent-crop40.png" backgroundImage="blank-30-bright.png">
+                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="hundredPercent:" destination="h96-d3-pbB" eventType="touchUpInside" id="ytU-f2-8r5"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="100%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="bAn-ln-E8y">
+                                <rect key="frame" x="202" y="172" width="83" height="29"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="32"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.60642489076674955" green="0.66666666666666663" blue="0.52245245069974555" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <tabBarItem key="tabBarItem" title="Transport" id="Gul-KO-fuA"/>
+                    <navigationItem key="navigationItem" title="Not So Fast!" id="SQI-g2-Tdq">
+                        <barButtonItem key="leftBarButtonItem" title="Info" id="yCm-1V-Vb1">
+                            <connections>
+                                <segue destination="M8s-ve-NOL" kind="push" id="3MJ-or-uSm"/>
+                            </connections>
+                        </barButtonItem>
+                        <barButtonItem key="rightBarButtonItem" title="Songs" id="5VR-4A-BGn">
+                            <connections>
+                                <action selector="showMediaPicker:" destination="h96-d3-pbB" id="hvb-4O-XM0"/>
+                            </connections>
+                        </barButtonItem>
+                    </navigationItem>
+                    <connections>
+                        <outlet property="artistDisplayLabel" destination="Njb-zt-aJb" id="Bb1-ci-2Ui"/>
+                        <outlet property="durationLabel" destination="WtF-z3-8KV" id="mAR-HT-8MA"/>
+                        <outlet property="playPauseButton" destination="90v-2f-PoM" id="Osl-tb-eQe"/>
+                        <outlet property="positionSlider" destination="siy-Co-cLC" id="Jia-0z-hdk"/>
+                        <outlet property="rateLabel" destination="bAn-ln-E8y" id="1zg-XK-Gu8"/>
+                        <outlet property="rateSlider" destination="V9f-u2-G8U" id="mwi-WZ-1nl"/>
+                        <outlet property="timeDisplayLabel" destination="uaT-08-FX6" id="3dY-BF-gXg"/>
+                        <outlet property="titleDisplayLabel" destination="EZj-Zf-TxA" id="ixh-F5-PuJ"/>
+                        <outlet property="volumeSlider" destination="RG3-vR-7Du" id="Tnx-A6-w6s"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mFd-gp-Krl" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1014" y="-887"/>
+        </scene>
+        <!--View Controller-->
+        <scene sceneID="PzM-tb-kx6">
+            <objects>
+                <viewController id="M8s-ve-NOL" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="F3N-lg-dpV">
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="yOk-Xf-m7o"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dZ3-Kr-NI0" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-623" y="-868"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="100percent-crop40.png" width="41" height="35"/>
+        <image name="50percent-crop-35.png" width="35" height="35"/>
+        <image name="75percent-crop-35.png" width="35" height="35"/>
+        <image name="beginning-crop.png" width="77" height="76"/>
+        <image name="blank-30-bright.png" width="16" height="16"/>
+        <image name="fforward-crop.png" width="78" height="77"/>
+        <image name="play-crop.png" width="77" height="78"/>
+        <image name="rewind-crop.png" width="78" height="76"/>
+    </resources>
+    <classes>
+        <class className="TransportViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/TransportViewController.h"/>
+            <relationships>
+                <relationship kind="action" name="endFForward:"/>
+                <relationship kind="action" name="endRewind:"/>
+                <relationship kind="action" name="fiftyPercent:"/>
+                <relationship kind="action" name="hundredPercent:"/>
+                <relationship kind="action" name="movedPositionSlider:"/>
+                <relationship kind="action" name="movedRateSlider:"/>
+                <relationship kind="action" name="movedVolumeSlider:"/>
+                <relationship kind="action" name="playOrPause:"/>
+                <relationship kind="action" name="seventyFivePercent:"/>
+                <relationship kind="action" name="showMediaPicker:"/>
+                <relationship kind="action" name="startFForward:"/>
+                <relationship kind="action" name="startRewind:"/>
+                <relationship kind="action" name="toStart:"/>
+                <relationship kind="outlet" name="artistDisplayLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="durationLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="playPauseButton" candidateClass="UIButton"/>
+                <relationship kind="outlet" name="positionSlider" candidateClass="UISlider"/>
+                <relationship kind="outlet" name="rateLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="rateSlider" candidateClass="UISlider"/>
+                <relationship kind="outlet" name="timeDisplayLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="titleDisplayLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="volumeSlider" candidateClass="UISlider"/>
+            </relationships>
+        </class>
+    </classes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination"/>
+    </simulatedMetricsContainer>
+</document>
