@@ -14,7 +14,6 @@
 #import <AVFoundation/AVPlayer.h>
 
 @interface TransportViewController (){
-    //NSString *filePath;
 }
 @end
 
@@ -34,14 +33,14 @@ const int BILLION = 1000000000;
 @synthesize artistDisplayLabel = _artistDisplayLabel;
 @synthesize displayTimer = _displayTimer;
 @synthesize sliderIncrement = _sliderIncrement;
-//@synthesize userMediaItemCollection = _userMediaItemCollection;
+@synthesize songQueue = _songQueue;
 @synthesize playing = _playing;
 @synthesize songDuration = _songDuration;
 @synthesize updateSlider =_updateSlider;
 @synthesize saveRate = _saveRate;
+@synthesize markPosition = _markPosition;
 @synthesize songPath = _songPath;
-@synthesize filePath = _filePath;
-
+@synthesize transportFilePath = _transportFilePath;
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -63,20 +62,23 @@ const int BILLION = 1000000000;
     
     // set up the audio session
     [[AVAudioSession sharedInstance] setDelegate: self];
-    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryAmbient error: nil];
+    [[AVAudioSession sharedInstance] setCategory: AVAudioSessionCategoryPlayback
+                                           error: nil];
+                                                 //AVAudioSessionCategoryPlayback
+                                                // AVAudioSessionCategoryAmbient
     NSError *activationError = nil;
 	[[AVAudioSession sharedInstance] setActive: YES error: &activationError];
     
-    // inits not dependant on store file
+    // inits not dependant on whether we have a store file
     self.rateSlider.MaximumValue = 1.00;
     self.rateSlider.MinimumValue = 0.5;
-    self.volumeSlider.minimumValueImage = [UIImage imageNamed:@"soft-crop.png"];
-    self.volumeSlider.maximumValueImage = [UIImage imageNamed:@"loud-crop.png"];
+    self.volumeSlider.minimumValueImage = [UIImage imageNamed:@"soft-green-20.png"];
+    self.volumeSlider.maximumValueImage = [UIImage imageNamed:@"loud-green-20.png"];
     self.playing = false;
 
-    // Read song data file, if it exists.
+    // Read transport state file, if it exists.
     BOOL initWithFile = false;
-    NSDictionary *storeDictionary = (NSDictionary *)[NSDictionary dictionaryWithContentsOfFile:self.filePath];
+    NSDictionary *storeDictionary = (NSDictionary *)[NSDictionary dictionaryWithContentsOfFile:self.transportFilePath];
     
     if (storeDictionary) {
         NSLog(@"Have store dictionary.");
@@ -91,15 +93,17 @@ const int BILLION = 1000000000;
             int denominator = [[storeDictionary objectForKey:@"songPositionScale"] intValue];
             [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(numerator/BILLION,BILLION)];
             self.songDuration = [storeDictionary objectForKey:@"songDuration"];
+            self.durationLabel.text = [self formatTime:[self.songDuration floatValue]];
             self.positionSlider.value = (float)((numerator/denominator)/[self.songDuration floatValue]);
             self.rateSlider.value = [[storeDictionary objectForKey:@"songRate"] floatValue];
             self.rateLabel.text = [NSString stringWithFormat:@"%d%%",(int)(self.rateSlider.value*100)];
             self.saveRate = [storeDictionary objectForKey:@"songRate"];
             self.artistDisplayLabel.text = [storeDictionary objectForKey:@"artistDisplayLabel"];
             self.titleDisplayLabel.text = [storeDictionary objectForKey:@"titleDisplayLabel"];
-            self.timeDisplayLabel.text = [storeDictionary objectForKey:@"timeDisplayLabel"];
-            self.durationLabel.text = [storeDictionary objectForKey:@"durationLabel"];
+            self.timeDisplayLabel.text = [self formatTime:(float)((float)numerator/(float)denominator)];
             self.sliderIncrement = 1/(10*[self.songDuration doubleValue]);
+            self.markPosition = [storeDictionary objectForKey:@"markPosition"];
+            self.markDisplay.text = [self formatTime:[self.markPosition floatValue]];
             [self changeVolume: 0.5];
             
             initWithFile = true;
@@ -111,38 +115,39 @@ const int BILLION = 1000000000;
         NSLog(@"No store dictionary.");
     }
 
-    if (!initWithFile) {
+    if (!initWithFile) { // no stored state, set defaults
         self.positionSlider.value = 0.0;
         self.rateSlider.value = 1.0;
+        self.markPosition = [NSNumber numberWithFloat:0.0];
     }
 }
-/*
-NSDate *timerDate = [NSDate dateWithTimeIntervalSince1970:position];
-NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-[dateFormatter setDateFormat:@"mm:ss"];
-[dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0.0]];
-NSMutableString *displayString=(NSMutableString *)[dateFormatter stringFromDate:timerDate];
-self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,tenths];
- */
-- (void) updateTimer // Called by an NSTimer in playOrPause that fires every 0.1 sec
-                     // during playback to update the time display and slider poistion.
-{
+
+// Convert a time in seconds to a string - XX:XX.X 
+- (NSString*) formatTime: (float) timeValue {
+     NSMutableString *tenths = [NSMutableString stringWithFormat:@"%.1f",timeValue  -  floor(timeValue)];
+     NSRange range = NSMakeRange(0,1);
+     [tenths deleteCharactersInRange:range];
+     NSDate *timerDate = [NSDate dateWithTimeIntervalSince1970:timeValue];
+     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+     [dateFormatter setDateFormat:@"mm:ss"];
+     [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0.0]];
+     NSMutableString *displayString=(NSMutableString *)[dateFormatter stringFromDate:timerDate];
+     return[NSString stringWithFormat:@"%@%@",displayString,tenths];
+     
+} 
+
+- (void) updateTimer { // Called by an NSTimer in playOrPause that fires every 0.1 sec
+                       // during playback to update parameters and displays
     float position = (float) self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale;
-    //NSTimeInterval position = self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale;
-    //if (position < 0) {
-    if (position >= [self.songDuration doubleValue]){
+    if (position >= [self.songDuration doubleValue]) {
         [self toStart:self];
         return;
     }
-    NSMutableString *tenths = [NSMutableString stringWithFormat:@"%.1f",position - floor(position)];
-    NSRange range = NSMakeRange(0,1);
-    [tenths deleteCharactersInRange:range];
-    NSDate *timerDate = [NSDate dateWithTimeIntervalSince1970:position];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"mm:ss"];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0.0]];
-    NSMutableString *displayString=(NSMutableString *)[dateFormatter stringFromDate:timerDate];
-    self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,tenths];
+    if (position > 0) {
+        self.timeDisplayLabel.text = [self formatTime: position];
+    } else {
+        self.timeDisplayLabel.text = @"00:00.0"; // don't rewind display < 0
+    }
     if (self.updateSlider) // only if we've come from timer, not slider move.
     {
         self.positionSlider.value += (self.sliderIncrement*self.audioPlayer.rate);
@@ -151,10 +156,7 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
     }
 }
 
-
-
 - (IBAction) playOrPause: (id) sender {
-    
     if (self.playing) {  //  playing -> paused
         [self.playPauseButton setImage: [UIImage imageNamed:@"play-crop.png"] forState: UIControlStateNormal];
         [self.displayTimer invalidate];
@@ -164,13 +166,12 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
         self.saveRate = [NSNumber numberWithFloat: self.audioPlayer.rate];
         [self.audioPlayer pause];
         self.playing = false;
-            
     } else {  // paused -> playing
         if (self.audioPlayer) {
             [self.playPauseButton setImage: [UIImage imageNamed:@"stop-crop.png"] forState: UIControlStateNormal];
-        
             // Create a timer
             self.updateSlider = true;
+            // Fire a timer every tenth of a second to update display.
             self.displayTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
                                                              target:self
                                                            selector:@selector(updateTimer)
@@ -184,7 +185,6 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
 }
 
 - (IBAction) toStart: (id) sender {
-    NSLog(@"In to start");
     // Need the block so that we wait for completion of seekToTime:
     [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(0.0,BILLION) completionHandler:^(BOOL finished)
     {
@@ -198,8 +198,6 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
 
 - (IBAction) movedPositionSlider: (id) sender
 {
-    //NSLog(@"self.positionSlider.value: %f",self.positionSlider.value;
-    
     NSTimeInterval newTime = self.positionSlider.value*[self.songDuration floatValue];
     [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(newTime,BILLION)];
     if (!self.playing) { // if the timer is running (playing), it will update us.
@@ -209,7 +207,6 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
 }
 
 - (IBAction)movedRateSlider: (id) sender {
-   
     if (self.playing) {
         self.audioPlayer.rate = self.rateSlider.value;
     } else {
@@ -239,7 +236,60 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
     [self.audioPlayer.currentItem setAudioMix:volumeChangeMix];
 }
 
-    
+- (IBAction)plusTenth:(id)sender {
+    if (!self.playing) {
+         float position = (float) self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale;
+        float newTime = position + 0.1;
+        // Need the block so that we wait for completion of seekToTime:
+        [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(newTime,BILLION) completionHandler:^(BOOL finished)
+         {
+             if (finished) {
+                 self.positionSlider.value = (float)newTime/[self.songDuration floatValue];
+                 self.updateSlider = false;
+                 [self updateTimer];
+             }
+         }];
+    }
+    self.updateSlider = false;
+    [self updateTimer];
+}
+
+- (IBAction)minusTenth:(id)sender {
+    if (!self.playing) {
+        float position = (float) self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale;
+        float newTime = position - 0.1;
+        [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(newTime,BILLION) completionHandler:^(BOOL finished)
+         {
+             if (finished) {
+                 self.positionSlider.value = (float)newTime/[self.songDuration floatValue];
+                 self.updateSlider = false;
+                 [self updateTimer];
+             }
+         }];
+    }
+    self.updateSlider = false;
+    [self updateTimer];
+}
+
+- (IBAction)setMark:(id)sender {
+    self.markPosition = [NSNumber numberWithFloat:
+                         (float) self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale];
+    float position = [self.markPosition floatValue];
+    self.markDisplay.text = [self formatTime: position];
+    //self.markDisplay.text = self.timeDisplayLabel.text;
+}
+
+- (IBAction)toMark:(id)sender {
+    // Need the block so that we wait for completion of seekToTime:
+    [self.audioPlayer seekToTime: CMTimeMakeWithSeconds([self.markPosition floatValue],BILLION) completionHandler:^(BOOL finished)
+     {
+         if (finished) {
+             self.positionSlider.value = (float)[self.markPosition floatValue]/[self.songDuration floatValue];
+             self.updateSlider = false;
+             [self updateTimer];
+         }
+     }];
+   }
 
 - (IBAction) movedVolumeSlider: (id) sender {
     
@@ -268,6 +318,10 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
 
 - (IBAction)endRewind:(id)sender {
     if (self.playing) {
+        float position = (float) self.audioPlayer.currentTime.value/self.audioPlayer.currentTime.timescale;
+        if (position < 0) {
+            [self.audioPlayer seekToTime: CMTimeMakeWithSeconds(0.0,BILLION)];
+        }
         self.audioPlayer.rate = [self.saveRate floatValue];
     }
 }
@@ -302,35 +356,9 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
      self.rateLabel.text = [NSString stringWithFormat:@"100%%"];
 }
 
-#pragma mark Media Picker stuff
-
-// Configures and displays the media item picker.
-- (IBAction) showMediaPicker: (id) sender {
+// Called when user long presses on a song title in the table view.
+- (void) loadSong: (MPMediaItem *) song {
     
-	MPMediaPickerController *picker =
-    [[MPMediaPickerController alloc] initWithMediaTypes: MPMediaTypeAnyAudio];
-	
-	picker.delegate						= self;
-	picker.allowsPickingMultipleItems	= NO;
-	picker.prompt						= NSLocalizedString (@"iTunes Library", @"Prompt to user to choose some songs to play");
-    
-	[self presentModalViewController: picker animated: YES];
-}
-
-// Media Picker delegate protocol
-
-// Responds to the user tapping Done after choosing music.
-- (void) mediaPicker: (MPMediaPickerController *) mediaPicker didPickMediaItems: (MPMediaItemCollection *) mediaItemCollection {
-    
-    [self dismissModalViewControllerAnimated: YES];
-    
-   // if (self.playing) {
-    //    [self playOrPause:self];
-    //}
-     
-    MPMediaItem *song = [mediaItemCollection.items objectAtIndex:0];
-    
-   
     self.artistDisplayLabel.text = [NSString stringWithFormat:@"%@ - %@",[song valueForProperty:MPMediaItemPropertyArtist],[song valueForProperty:MPMediaItemPropertyAlbumTitle]];
     self.titleDisplayLabel.text = [song valueForProperty:MPMediaItemPropertyTitle];
     
@@ -338,15 +366,7 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
     self.audioPlayer = [[AVPlayer alloc] initWithURL: self.songPath];
     self.audioPlayer.actionAtItemEnd = AVPlayerActionAtItemEndNone;
     self.songDuration =  [song valueForProperty: MPMediaItemPropertyPlaybackDuration];
-    
-    // all this to format the duration label
-    NSDate *timerDate = [NSDate dateWithTimeIntervalSince1970:[self.songDuration floatValue]];
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"mm:ss"];
-    [dateFormatter setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0.0]];
-    NSString *displayString=[dateFormatter stringFromDate:timerDate];
-    self.durationLabel.text = displayString;
-    
+    self.durationLabel.text = [self formatTime: [self.songDuration floatValue]];
     self.timeDisplayLabel.text = @"00:00.0";
     self.positionSlider.value = 0.0;
     self.sliderIncrement = 1/(10*[self.songDuration doubleValue]);
@@ -356,14 +376,7 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
     self.saveRate = [NSNumber numberWithFloat:1.0];
     [self changeVolume: 0.5];
     self.volumeSlider.value = 0.5;
-}
-
-// Responds to the user tapping done having chosen no music.
-- (void) mediaPickerDidCancel: (MPMediaPickerController *) mediaPicker {
-    
-	[self dismissModalViewControllerAnimated: YES];
-    
-	//[[UIApplication sharedApplication] setStatusBarStyle: UIStatusBarStyleBlackOpaque animated:YES];
+    self.markPosition = [NSNumber numberWithFloat:0.0];
 }
 
 - (void)didReceiveMemoryWarning
@@ -379,6 +392,7 @@ self.timeDisplayLabel.text =[NSString stringWithFormat:@"%@%@",displayString,ten
     [self setArtistDisplayLabel:nil];
     [self setRateLabel:nil];
     [self setDurationLabel:nil];
+    [self setMarkDisplay:nil];
     [super viewDidUnload];
 }
 @end

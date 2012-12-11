@@ -7,57 +7,70 @@
 //
 
 #import "AppDelegate.h"
-//#import "PlayListViewController.h"
 #import "TransportViewController.h"
-
-#import <Foundation/Foundation.h>
 #import <MediaPlayer/MediaPlayer.h>
-#import <AVFoundation/AVAudioPlayer.h>
 #import <AVFoundation/AVPlayer.h>
-
-#import <AVFoundation/AVFoundation.h>
-#import <AudioToolbox/AudioToolbox.h>
-
-
 
 @interface AppDelegate () {
 }
-
-
-
 @end
 
-NSString *_filePath;
+NSString *_transportFilePath;
+NSString *_playlistFilePath;
 TransportViewController *_mainController;
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // get a pointer to the transportViewController, so we can write out its state in 
-    // applicationWillResignActive:.
+    // get a pointer to the transportViewController, so we can write out
+    // its state in applicationWillResignActive:.
     
     UINavigationController *nav = (UINavigationController *) self.window.rootViewController;
     _mainController = (TransportViewController *) nav.topViewController;
     
-    // Put file handle for reading store in the _mainController so it can read the file we write.
-    
+    // get the documents folder
     NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     NSString *documentsDirectory = [paths objectAtIndex:0];
-    _filePath = [documentsDirectory stringByAppendingPathComponent:@"nsf"];
-    _mainController.filePath = _filePath;
+    
+    // Tranport state file is read in the TransportController
+    _transportFilePath = [documentsDirectory stringByAppendingPathComponent:@"nsfTransport"];
+    // Playlistfile is read below in the applicationWillResignActive: method
+    _playlistFilePath = [documentsDirectory stringByAppendingPathComponent:@"nsfPlaylist"];
+    
+    ///////////////
+    // FOR TESTING ///// BE CAREFUL!!!!!!!
+    //[[NSFileManager defaultManager] removeItemAtPath: _playlistFilePath error: nil];
+    //////// !!!!!!!
+    
+    // Put file handle for reading store in the _mainController so it can read the file we write.
+    _mainController.transportFilePath = _transportFilePath;
+    
+    // Read in the playlist persistent IDs
+    NSArray *storeArray = (NSArray *)[NSArray arrayWithContentsOfFile:_playlistFilePath];
    
+    // Use the IDs to construct an MPMediaItemClooection.
+    if (storeArray) {
+        NSLog(@"Have playlist store.");
+        NSMutableArray *queueTemp = [[NSMutableArray alloc] initWithCapacity:[storeArray count]];
+        for (NSString *persistentID in storeArray) {
+            MPMediaQuery *query = [MPMediaQuery songsQuery];
+            MPMediaPropertyPredicate *predicate = [MPMediaPropertyPredicate predicateWithValue:persistentID forProperty:MPMediaItemPropertyPersistentID];
+            [query addFilterPredicate:predicate];
+            NSArray *songs = [query items];
+            [queueTemp addObject: [songs objectAtIndex:0]];
+        }
+        // Attach it to the Transport contrioller
+        _mainController.songQueue = [[MPMediaItemCollection alloc] initWithItems:queueTemp];    } else {
+        NSLog(@"No playlist store.");
+    }
+    
     return YES;
 }
 							
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    if (_mainController.playing) {
-        //[_mainController.audioPlayer pause];
-        //[_mainController playOrPause:self];
-    }
-    
-    // write the app state to disk
+    // write the state of the transport view to disk
     NSDictionary *storeDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
                 _mainController.songPath.absoluteString, @"songPath",
                 _mainController.songDuration, @"songDuration",
@@ -66,12 +79,22 @@ TransportViewController *_mainController;
                 _mainController.saveRate,@"songRate",
                 _mainController.artistDisplayLabel.text,@"artistDisplayLabel",
                 _mainController.titleDisplayLabel.text,@"titleDisplayLabel",
-                // these next 2 are fairly costly to derive.  Let's just store them.
-                _mainController.timeDisplayLabel.text,@"timeDisplayLabel",
-                _mainController.durationLabel.text,@"durationLabel",
+                _mainController.markPosition, @"markPosition",
                         nil];
     
-    [storeDictionary writeToFile:_filePath atomically:YES];
+    [storeDictionary writeToFile:_transportFilePath atomically:YES];
+    
+    // save the PersistentIDs of all the media items (songs) on the
+    // playlist, so that we can recreate the MPmediaItemCollection of user chosen songs.
+    NSMutableArray *persistentIDs = [NSMutableArray arrayWithCapacity:[_mainController.songQueue.items count]];
+    
+    for (MPMediaItem* song in (NSArray*)_mainController.songQueue.items) {
+        [persistentIDs addObject:[song valueForProperty:MPMediaItemPropertyPersistentID]];
+    }
+    NSArray *storePlaylist = [NSArray arrayWithArray:persistentIDs];
+    [storePlaylist writeToFile:_playlistFilePath atomically:YES];
+       
+    NSLog(@"Saved state");
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application

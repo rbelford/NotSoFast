@@ -14,11 +14,10 @@
 #import "AppDelegate.h"
 
 
-@interface TransportViewController : UIViewController <AVAudioPlayerDelegate,MPMediaPickerControllerDelegate>
+@interface TransportViewController : UIViewController <AVAudioPlayerDelegate>
 
 {
     
-    //   NSTimeInterval displayTimeInSecs;
 }
 
 
@@ -31,14 +30,14 @@
 @property (nonatomic, retain) IBOutlet UISlider *positionSlider;
 @property (nonatomic, retain) IBOutlet UISlider *rateSlider;
 @property (strong, nonatomic) IBOutlet UISlider *volumeSlider;
+@property (strong, nonatomic) IBOutlet UILabel *markDisplay;
 @property (nonatomic, retain) AVPlayer *audioPlayer;
-//@property (nonatomic,retain) MPMediaItemCollection	*userMediaItemCollection;
-@property (nonatomic, retain) NSString *filePath; // path to disk file
+@property (nonatomic,retain) MPMediaItemCollection	*songQueue;
+@property (nonatomic, retain) NSString *transportFilePath; // path to song state file
 @property (nonatomic,retain) NSURL *songPath;     // URL to song in iTunes library
 @property (nonatomic,retain) NSNumber *songDuration;
-// calls to play and pause set rate to 1.0 and 0.0,
-// so we need to save and restore our (potentially altered) rate
-@property (nonatomic,retain) NSNumber *saveRate;
+@property (nonatomic,retain) NSNumber *saveRate; // Calls to play and pause set rate to 1.0 and 0.0, so we need to save and restore our (potentially altered) rate
+@property (nonatomic,retain) NSNumber *markPosition;
 @property (nonatomic,retain) NSTimer *displayTimer;
 @property  CGFloat sliderIncrement; // each update moves the position slider by this much
 @property BOOL playing;
@@ -53,11 +52,15 @@
 - (IBAction) startRewind: (id) sender;
 - (IBAction) endRewind: (id) sender;
 - (IBAction) toStart: (id) sender;
-- (IBAction) showMediaPicker: (id) sender;
 - (IBAction) fiftyPercent:(id)sender;
 - (IBAction) seventyFivePercent:(id)sender;
 - (IBAction) hundredPercent:(id)sender;
-- (void) changeVolume: (float) value;
+- (IBAction) plusTenth:(id)sender;
+- (IBAction) minusTenth:(id)sender;
+- (IBAction) setMark:(id)sender;
+- (IBAction) toMark:(id)sender;
 
+- (void)     loadSong: (MPMediaItem*) song;
+- (void)     changeVolume: (float) value;
 @end
 
