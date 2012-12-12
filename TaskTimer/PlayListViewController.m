@@ -30,6 +30,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // appDelegate.m reads in a saved playlist, which gets attached to the transport controller on our behalf.
+    // Get a pointer to the Transport controller, and then a pointer to that song queue.
     NSArray *viewControllers = self.navigationController.viewControllers;
     self.transport = [viewControllers objectAtIndex:viewControllers.count - 2];
     self.userMediaItemCollection = self.transport.songQueue;

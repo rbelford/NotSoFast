@@ -70,7 +70,7 @@ TransportViewController *_mainController;
 							
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    // write the state of the transport view to disk
+    // write the state of the transport view (the playing song) to disk.
     NSDictionary *storeDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
                 _mainController.songPath.absoluteString, @"songPath",
                 _mainController.songDuration, @"songDuration",

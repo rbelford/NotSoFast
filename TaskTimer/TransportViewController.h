@@ -20,7 +20,6 @@
     
 }
 
-
 @property (nonatomic, retain) IBOutlet UILabel *timeDisplayLabel;
 @property (strong, nonatomic) IBOutlet UILabel *titleDisplayLabel;
 @property (strong, nonatomic) IBOutlet UILabel *artistDisplayLabel;
